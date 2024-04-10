@@ -32,9 +32,9 @@ function chatbeesClosePopup() {
 
 // Function to send question to ChatBees service
 function chatbeesSendMessage() {
-  const userInput = document.getElementById('chatbeesUserInput').value.trim();
+  const userMsg = document.getElementById('chatbeesUserInput').value.trim();
 
-  if (userInput == "") {
+  if (userMsg == "") {
     return;
   }
 
@@ -52,10 +52,10 @@ function chatbeesSendMessage() {
 
   const chatArea = document.getElementById('chatbeesChatArea');
   // Display user's message
-  var userMsg = document.createElement('div');
-  userMsg.textContent = userInput;
-  userMsg.classList.add('chatbees-message', 'chatbees-user');
-  chatArea.appendChild(userMsg);
+  var userMsgDiv = document.createElement('div');
+  userMsgDiv.textContent = userMsg;
+  userMsgDiv.classList.add('chatbees-message', 'chatbees-user');
+  chatArea.appendChild(userMsgDiv);
 
   // Display bot thinking
   var thinkMsg = document.createElement('div');
@@ -67,13 +67,13 @@ function chatbeesSendMessage() {
     // remove the thinking message
     chatArea.removeChild(thinkMsg);
 
-    // Test bot, simply echo the userInput
+    // Test bot, simply echo the userMsg
     var botMsg = document.createElement('div');
-    botMsg.textContent = "Test echo: " + userInput;
+    botMsg.textContent = "Test echo: " + userMsg;
     botMsg.classList.add('chatbees-message', 'chatbees-bot');
     chatArea.appendChild(botMsg);
 
-    historyMessages.push([userInput, botMsg.textContent]);
+    historyMessages.push([userMsg, botMsg.textContent]);
     if (historyMessages.length > maxMessages) {
       historyMessages = historyMessages.slice(-maxMessages);
     }
@@ -89,9 +89,9 @@ function chatbeesSendMessage() {
 
   // get the answer from the service
   const apiUrl = 'https://' + aid + '.us-west-2.aws.chatbees.ai/docs/ask';
-  jsonData = JSON.stringify({namespace_name: namespaceName, collection_name: collectionName, question: userInput});
+  jsonData = JSON.stringify({namespace_name: namespaceName, collection_name: collectionName, question: userMsg});
   if (historyMessages.length > 0) {
-    jsonData = JSON.stringify({namespace_name: namespaceName, collection_name: collectionName, question: userInput, history_messages: historyMessages});
+    jsonData = JSON.stringify({namespace_name: namespaceName, collection_name: collectionName, question: userMsg, history_messages: historyMessages});
   }
 
   fetch(apiUrl, {
@@ -119,7 +119,7 @@ function chatbeesSendMessage() {
     botMsg.classList.add('chatbees-message', 'chatbees-bot');
     chatArea.appendChild(botMsg);
     // add to the historyMessages
-    historyMessages.push([userInput, data.answer]);
+    historyMessages.push([userMsg, data.answer]);
     if (historyMessages.length > maxMessages) {
       historyMessages = historyMessages.slice(-maxMessages);
     }
@@ -145,8 +145,7 @@ function chatbeesSendMessage() {
 }
 
 // Send question when Enter key is pressed
-const userInput = document.getElementById('chatbeesUserInput');
-userInput.addEventListener("keyup", function (event) {
+document.getElementById('chatbeesUserInput').addEventListener("keyup", function (event) {
   if (event.key == "Enter" && !event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey) {
     chatbeesSendMessage();
   }

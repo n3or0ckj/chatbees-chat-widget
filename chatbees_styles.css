@@ -14,6 +14,7 @@
     align-items: center;
     cursor: pointer;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for better visibility */
+    z-index: 9998; /* Make sure float btn is always on top */
   }
 
   .chatbees-chaticon {
@@ -29,9 +30,9 @@
     position: fixed;
     right: 10px;
     width: 90%;
-    max-width: 400px;
+    max-width: 500px;
     height: 80%;
-    max-height: 600px;
+    max-height: 900px;
     overflow: auto; /* Enable scrolling if content exceeds dimensions */
     border: 1px solid #ccc;
     border-radius: 10px;
@@ -81,7 +82,7 @@
   .chatbees-refresh-icon {
     width: 20px; /* Adjust the width as needed */
     height: 20px; /* Adjust the height as needed */
-    margin-right: 5px; /* Add margin to create space between the refresh icon and close span */
+    margin-right: 8px; /* Add margin to create space between the refresh icon and close span */
     cursor: pointer;
   }
 
@@ -135,7 +136,8 @@
   .chatbees-message {
     padding: 5px 10px;
     margin: 5px;
-    border-radius: 5px;
+    border: 0.5em solid transparent;
+    border-radius: 8px;
     display: flex;
     max-width: 70%;
   }
