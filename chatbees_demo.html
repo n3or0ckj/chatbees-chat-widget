@@ -6,18 +6,26 @@
     <title>ChatBot</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css'>
     <link rel="stylesheet" href="chatbees_styles.css">
 </head>
 <body>
     <!-- Your unique page content goes here -->
-    <div class="container mt-4">
+    <div class="mt-8 px-4">
         <h2>Hello ChatBees</h2>
     </div>
 
     <!-- Floating button -->
-    <div class="chatbees-float-btn" id="chatbeesFloatBtn">
-      <img src="chatbees_chaticon.png" alt="Chat" class="chatbees-chaticon" onclick="chatbeesShowPopup()">
-    </div>
+    <button id="chatbeesFloatBtn"
+      class="fixed bottom-8 right-8 inline-flex items-center justify-center text-sm font-medium disabled:pointer-events-none disabled:opacity-50 border rounded-full w-16 h-16 hover:bg-gray-700 m-0 cursor-pointer border-gray-200 p-0 normal-case leading-5 hover:text-gray-900 floating-button"
+      type="button" aria-haspopup="dialog" aria-expanded="false" data-state="closed"
+      style="background-color: #fb9e40; z-index: 9998;" onclick="chatbeesShowPopup()">
+      <svg xmlns=" http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="white"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+           class="text-white block border-gray-200 align-middle">
+        <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z" class="border-gray-200"></path>
+      </svg>
+    </button>
 
     <!-- Chat Popup -->
     <div class="chatbees-popup" id="chatbeesPopup">
@@ -27,14 +35,14 @@
           <span><strong>ChatBees</strong></span>
         </div>
         <div class="chatbees-right-section">
-          <img src="chatbees_refresh_icon.png" alt="Refresh" class="chatbees-refresh-icon" onclick="chatbeesClearChat()">
-          <span class="chatbees-close" onclick="chatbeesClosePopup()">×</span>
+          <img src="chatbees_refresh_icon.svg" alt="Refresh" class="chatbees-refresh-icon" onclick="chatbeesClearChat()">
+          <img src="chatbees_close_icon.svg" alt="Close" class="chatbees-refresh-icon" onclick="chatbeesClosePopup()">
         </div>
       </div>
       <div class="chatbees-chat-area" id="chatbeesChatArea">
       </div>
       <div class="chatbees-user-input-area">
-        <textarea id="chatbeesUserInput" placeholder="Type your message..."></textarea>
+        <textarea id="chatbeesUserInput" placeholder="Type your message here"></textarea>
         <!--
             Please replace the chatbeesAccountID and chatbeesCollectionName with your account id
             and collection name. chatbeesNamespaceName is "public" by default currently, you can
@@ -45,7 +53,14 @@
         <input type="hidden" id="chatbeesAccountID" value="public">
         <input type="hidden" id="chatbeesNamespaceName" value="public">
         <input type="hidden" id="chatbeesCollectionName" value="collectionName">
-        <img src="chatbees_send_icon.svg" alt="Send" class="chatbees-send-icon" onclick="chatbeesSendMessage()">
+        <button
+            class="flex h-16 w-16 items-center justify-center rounded-md bg-primary text-white hover:text-gray-900"
+            style="background-color: #4a86e8ff;" onclick="chatbeesSendMessage()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"fill="none">
+            <path d="M22 2L11 13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
       </div>
     </div>
 
