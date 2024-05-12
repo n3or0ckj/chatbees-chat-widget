@@ -19,7 +19,8 @@
     <button id="chatbeesFloatBtn"
       class="fixed bottom-8 right-8 inline-flex items-center justify-center text-sm font-medium disabled:pointer-events-none disabled:opacity-50 border rounded-full w-16 h-16 hover:bg-gray-700 m-0 cursor-pointer border-gray-200 p-0 normal-case leading-5 hover:text-gray-900 floating-button"
       type="button" aria-haspopup="dialog" aria-expanded="false" data-state="closed"
-      style="background-color: #fb9e40; z-index: 9998;" onclick="chatbeesShowPopup()">
+      style="background-color: #fb9e40; z-index: 9998;"
+      aria-label="Open ChatBees Popup">
       <svg xmlns=" http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="white"
            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
            class="text-white block border-gray-200 align-middle">
@@ -35,8 +36,13 @@
           <a href="https://www.chatbees.ai/pricing" target="_blank" style="color: blue;"><strong>ChatBees</strong></a>
         </div>
         <div class="chatbees-right-section">
-          <img src="chatbees_refresh_icon.svg" alt="Refresh" class="chatbees-refresh-icon" onclick="chatbeesClearChat()">
-          <img src="chatbees_close_icon.svg" alt="Close" class="chatbees-refresh-icon" onclick="chatbeesClosePopup()">
+          <button id="chatbeesClearBtn" aria-label="Clear ChatBees Chat Message">
+            <img src="chatbees_refresh_icon.svg" alt="Clear" class="chatbees-btn-icon">
+          </button>
+          
+          <button id="chatbeesCloseBtn" aria-label="Close ChatBees Popup">
+            <img src="chatbees_close_icon.svg" alt="Close" class="chatbees-btn-icon">
+          </button>
         </div>
       </div>
       <div class="chatbees-chat-area" id="chatbeesChatArea">
@@ -54,8 +60,10 @@
         <input type="hidden" id="chatbeesNamespaceName" value="public">
         <input type="hidden" id="chatbeesCollectionName" value="collectionName">
         <button
+            id="chatbeesSendMessageBtn"
             class="flex h-16 w-16 items-center justify-center rounded-md bg-primary text-white hover:text-gray-900"
-            style="background-color: #4a86e8ff;" onclick="chatbeesSendMessage()">
+            style="background-color: #4a86e8ff;"
+            aria-label="Ask ChatBees Question">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"fill="none">
             <path d="M22 2L11 13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
