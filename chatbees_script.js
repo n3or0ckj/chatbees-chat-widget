@@ -1,152 +1,242 @@
-// Global chat history, a list of questions and answers.
-// Currently only the last 10 history questions and answers will be remembered.
-var historyMessages = [];
-var maxMessages = 10;
+(function () {
+  const getElementById = (id) => document.getElementById(id);
 
-// Open chat popup when floating button is clicked
-function chatbeesShowPopup() {
-  const chatPopup = document.getElementById('chatbeesPopup');
-  chatPopup.style.display = 'flex';
-
-  // Display hello message as the first message
-  chatArea = document.getElementById('chatbeesChatArea');
-  chatArea.innerHTML = '<div class="chatbees-message chatbees-bot">Hello! How can I assist you?</div>';
-
-  historyMessages = [];
-}
-
-// Clear all messages
-function chatbeesClearChat() {
-  var chatArea = document.getElementById("chatbeesChatArea");
-  chatArea.innerHTML = '<div class="chatbees-message chatbees-bot">Hello! How can I assist you?</div>';
-  document.getElementById('chatbeesUserInput').value = '';
-  // clear the historyMessages
-  historyMessages = [];
-}
-
-// Close chat popup
-function chatbeesClosePopup() {
-  document.getElementById('chatbeesPopup').style.display = 'none';
-  historyMessages = [];
-}
-
-// Function to send question to ChatBees service
-function chatbeesSendMessage() {
-  const userMsg = document.getElementById('chatbeesUserInput').value.trim();
-
-  if (userMsg == "") {
+  const [aid, namespaceName, collectionName] = [
+    "chatbeesAccountID",
+    "chatbeesNamespaceName",
+    "chatbeesCollectionName",
+  ]
+    .map(getElementById)
+    .map((element) => element?.value?.trim());
+  if (!aid || !collectionName) {
+    window.alert("Please set accountId and collection name.");
+    return;
+  }
+  if (!namespaceName) {
+    window.alert("The namespace name should not be empty.");
     return;
   }
 
-  const aid = document.getElementById('chatbeesAccountID').value.trim();
-  const namespaceName = document.getElementById('chatbeesNamespaceName').value.trim();
-  const collectionName = document.getElementById('chatbeesCollectionName').value.trim();
-  if (aid == "" || collectionName == "") {
-    window.alert("Please set accountId and collection name");
+  const [
+    chatButtonElement,
+    chatPopupElement,
+    chatAreaElement,
+    userMsgElement,
+    clearBtnElement,
+    closeBtnElement,
+    sendMessageBtnElement,
+  ] = [
+    "chatbeesFloatBtn",
+    "chatbeesPopup",
+    "chatbeesChatArea",
+    "chatbeesUserInput",
+    "chatbeesClearBtn",
+    "chatbeesCloseBtn",
+    "chatbeesSendMessageBtn",
+  ].map(getElementById);
+  if (!chatPopupElement || !chatAreaElement || !userMsgElement) {
+    window.alert(
+      "Please put chatbeesPopup, chatbeesChatArea and chatbeesUserInput elements in your HTML."
+    );
     return;
   }
-  if (namespaceName == "") {
-    window.alert("The namespace name should not be empty");
-    return;
-  }
 
-  const chatArea = document.getElementById('chatbeesChatArea');
-  // Display user's message
-  var userMsgDiv = document.createElement('div');
-  userMsgDiv.textContent = userMsg;
-  userMsgDiv.classList.add('chatbees-message', 'chatbees-user');
-  chatArea.appendChild(userMsgDiv);
+  const localStorageHistoryKey = "chatBeesHistoryMessages";
+  let historyMessages;
+  const resetMessageHistroy = () => {
+    historyMessages = [];
+    localStorage.setItem(localStorageHistoryKey, JSON.stringify([]));
+  };
 
-  // Display bot thinking
-  var thinkMsg = document.createElement('div');
-  thinkMsg.textContent = 'Bees are thinking...';
-  thinkMsg.classList.add('chatbees-message', 'chatbees-bot');
-  chatArea.appendChild(thinkMsg);
+  try {
+    historyMessages = JSON.parse(localStorage.getItem(localStorageHistoryKey));
 
-  if (collectionName == "collectionName") {
-    // remove the thinking message
-    chatArea.removeChild(thinkMsg);
-
-    // Test bot, simply echo the userMsg
-    var botMsg = document.createElement('div');
-    botMsg.textContent = "Test echo: " + userMsg;
-    botMsg.classList.add('chatbees-message', 'chatbees-bot');
-    chatArea.appendChild(botMsg);
-
-    historyMessages.push([userMsg, botMsg.textContent]);
-    if (historyMessages.length > maxMessages) {
-      historyMessages = historyMessages.slice(-maxMessages);
+    if (!Array.isArray(historyMessages)) {
+      resetMessageHistroy();
     }
-    //console.log(historyMessages);
-
-    // Scroll chat area to the bottom
-    chatArea.scrollTop = chatArea.scrollHeight;
-
-    // clear user input
-    document.getElementById('chatbeesUserInput').value = '';
-    return;
+  } catch {
+    resetMessageHistroy();
   }
 
-  // get the answer from the service
-  const apiUrl = 'https://' + aid + '.us-west-2.aws.chatbees.ai/docs/ask';
-  jsonData = JSON.stringify({namespace_name: namespaceName, collection_name: collectionName, question: userMsg});
-  if (historyMessages.length > 0) {
-    jsonData = JSON.stringify({namespace_name: namespaceName, collection_name: collectionName, question: userMsg, history_messages: historyMessages});
-  }
+  const appendUserMessage = (userMsg) => {
+    if (!userMsg) {
+      return;
+    }
 
-  fetch(apiUrl, {
-    method: 'POST',
-    headers: {
-      // If the collection does not allow public read, please add your api-key here.
-      //'api-key': 'Replace with your API Key',
-      'Content-Type': 'application/json'
+    const userMsgDiv = document.createElement("div");
+    userMsgDiv.textContent = userMsg;
+    userMsgDiv.classList.add("chatbees-message", "chatbees-user");
+    chatAreaElement.appendChild(userMsgDiv);
+
+    chatAreaElement.scrollTop = chatAreaElement.scrollHeight;
+  };
+
+  const botMessages = {
+    greeting: "Hello! How can I assist you?",
+    thinking: "Bees are thinking...",
+    generateEchoMessage(userMsg) {
+      return `Test echo: ${userMsg}`;
     },
-    body: jsonData,
-  })
-  .then((response) => {
-    if (response.ok) {
-      return response.json();
-    }
-    throw new Error(`status: ${response.status}, error: ${response.statusText}`);
-  })
-  .then(data => {
-    // remove the thinking message
-    chatArea.removeChild(thinkMsg);
+    generateErrorMessage({ message }) {
+      return `Something went wrong: ${message}`;
+    },
+  };
+  const appendBotMessage = (botMsg, ...additionalClasses) => {
+    const botMsgClasses = ["chatbees-message", "chatbees-bot"];
 
-    // Display the response in the chat area
-    var botMsg = document.createElement('div');
-    botMsg.textContent = data.answer;
-    botMsg.classList.add('chatbees-message', 'chatbees-bot');
-    chatArea.appendChild(botMsg);
-    // add to the historyMessages
-    historyMessages.push([userMsg, data.answer]);
+    const botMsgDiv = document.createElement("div");
+    botMsgDiv.textContent = botMsg.answer;
+    botMsgDiv.classList.add(...botMsgClasses, ...additionalClasses);
+    chatAreaElement.appendChild(botMsgDiv);
+
+    chatAreaElement.scrollTop = chatAreaElement.scrollHeight;
+
+    botMsg.refs?.forEach(({ doc_name, sample_text }) => {
+      const linkDiv = document.createElement("div");
+      linkDiv.classList.add(...botMsgClasses, "chatbees-link");
+      linkDiv.textContent = sample_text;
+      const link = document.createElement("a");
+      link.href = doc_name;
+      link.target = "_blank";
+      link.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 48 48" width="24px" height="24px"><path fill="#BBDEFB" d="M6 10H38V42H6z"/><path fill="#3F51B5" d="M42 6L42 21 27 6z"/><path fill="#3F51B5" d="M26.132 10.368H34.133V25.368000000000002H26.132z" transform="rotate(45.001 30.132 17.868)"/></svg>`;
+      linkDiv.appendChild(link);
+      chatAreaElement.appendChild(linkDiv);
+    });
+
+    return botMsgDiv;
+  };
+
+  const restoreHistoryMessagesAndGreet = () => {
+    historyMessages.forEach(({ userMsg, botMsg }) => {
+      appendUserMessage(userMsg);
+      appendBotMessage(botMsg);
+    });
+
+    appendBotMessage({ answer: botMessages.greeting });
+  };
+
+  restoreHistoryMessagesAndGreet();
+
+  const addItemToHistory = (historyItem) => {
+    const maxMessages = 10;
+
+    historyMessages.push(historyItem);
     if (historyMessages.length > maxMessages) {
       historyMessages = historyMessages.slice(-maxMessages);
     }
-    //console.log(historyMessages);
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    // remove the thinking message
-    chatArea.removeChild(thinkMsg);
 
-    // Display a generic message for error case
-    var botMsg = document.createElement('div');
-    botMsg.textContent = "Something went wrong: ".concat(error.message);
-    botMsg.classList.add('chatbees-message', 'chatbees-bot');
-    chatArea.appendChild(botMsg);
+    localStorage.setItem(
+      localStorageHistoryKey,
+      JSON.stringify(historyMessages)
+    );
+  };
+
+  const chatbeesSendMessage = () => {
+    const userMsg = userMsgElement.value.trim();
+
+    if (!userMsg) {
+      return;
+    }
+
+    appendUserMessage(userMsg);
+
+    userMsgElement.value = "";
+    userMsgElement.focus();
+
+    const thinkMsg = appendBotMessage({ answer: botMessages.thinking });
+
+    if (collectionName === "collectionName") {
+      chatAreaElement.removeChild(thinkMsg);
+
+      appendBotMessage({ answer: botMessages.generateEchoMessage(userMsg) });
+      return;
+    }
+
+    const apiUrl = "https://" + aid + ".us-west-2.aws.chatbees.ai/docs/ask";
+    let jsonData = JSON.stringify({
+      namespace_name: namespaceName,
+      collection_name: collectionName,
+      question: userMsg,
+    });
+
+    if (historyMessages.length > 0) {
+      jsonData = JSON.stringify({
+        namespace_name: namespaceName,
+        collection_name: collectionName,
+        question: userMsg,
+        history_messages: historyMessages.reduce(
+          (acc, { userMsg, botMsg }) => [...acc, [userMsg, botMsg.answer]],
+          []
+        ),
+      });
+    }
+
+    fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        // If the collection does not allow public read, please add your api-key here.
+        // "api-key": "Replace with your API Key",
+        "Content-Type": "application/json",
+      },
+      body: jsonData,
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        }
+        throw new Error(
+          `status: ${response.status}, error: ${response.statusText}`
+        );
+      })
+      .then((botMsg) => {
+        chatAreaElement.removeChild(thinkMsg);
+        appendBotMessage(botMsg);
+
+        addItemToHistory({ userMsg, botMsg });
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        chatAreaElement.removeChild(thinkMsg);
+
+        appendBotMessage(
+          { answer: botMessages.generateErrorMessage(error) },
+          "chatbees-error"
+        );
+      });
+  };
+
+  chatButtonElement?.addEventListener("click", () => {
+    chatPopupElement.style.display = "flex";
+
+    userMsgElement.focus();
   });
 
-  // Scroll chat area to the bottom
-  chatArea.scrollTop = chatArea.scrollHeight;
+  clearBtnElement?.addEventListener("click", () => {
+    chatAreaElement.innerHTML = "";
+    userMsgElement.value = "";
+    userMsgElement.focus();
 
-  // clear user input
-  document.getElementById('chatbeesUserInput').value = '';
-}
+    resetMessageHistroy();
+    restoreHistoryMessagesAndGreet();
+  });
 
-// Send question when Enter key is pressed
-document.getElementById('chatbeesUserInput').addEventListener("keyup", function (event) {
-  if (event.key == "Enter" && !event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey) {
+  closeBtnElement?.addEventListener("click", () => {
+    chatPopupElement.style.display = "none";
+  });
+
+  sendMessageBtnElement?.addEventListener("click", () => {
     chatbeesSendMessage();
-  }
-});
+  });
+
+  userMsgElement.addEventListener("keyup", (event) => {
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey &&
+      !event.ctrlKey &&
+      !event.altKey &&
+      !event.metaKey
+    ) {
+      chatbeesSendMessage();
+    }
+  });
+})();
