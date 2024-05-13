@@ -1,6 +1,6 @@
 (function () {
   const getElementById = (id) => document.getElementById(id);
-  
+
   const [aid, namespaceName, collectionName] = [
     "chatbeesAccountID",
     "chatbeesNamespaceName",
@@ -78,7 +78,7 @@
       return `Test echo: ${userMsg}`;
     },
     generateErrorMessage({ message }) {
-      `Something went wrong: ${message}`;
+      return `Something went wrong: ${message}`;
     },
   };
   const appendBotMessage = (botMsg, ...additionalClasses) => {
