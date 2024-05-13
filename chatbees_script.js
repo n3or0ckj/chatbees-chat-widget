@@ -115,6 +115,8 @@
     appendBotMessage({ answer: botMessages.greeting });
   };
 
+  restoreHistoryMessagesAndGreet();
+
   const addItemToHistory = (historyItem) => {
     const maxMessages = 10;
 
@@ -205,8 +207,6 @@
 
   chatButtonElement?.addEventListener("click", () => {
     chatPopupElement.style.display = "flex";
-
-    restoreHistoryMessagesAndGreet();
 
     userMsgElement.focus();
   });
