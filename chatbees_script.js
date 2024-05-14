@@ -85,23 +85,36 @@
     const botMsgClasses = ["chatbees-message", "chatbees-bot"];
 
     const botMsgDiv = document.createElement("div");
-    botMsgDiv.textContent = botMsg.answer;
     botMsgDiv.classList.add(...botMsgClasses, ...additionalClasses);
+
+    const botMsgPlain = document.createElement("div");
+    botMsgPlain.textContent = botMsg.answer;
+    botMsgDiv.appendChild(botMsgPlain);
     chatAreaElement.appendChild(botMsgDiv);
 
-    chatAreaElement.scrollTop = chatAreaElement.scrollHeight;
+    const botMsgSources = document.createElement("div");
 
-    botMsg.refs?.forEach(({ doc_name, sample_text }) => {
+    _.uniqBy(botMsg.refs?.filter(ref => ref.doc_name?.match(/https?:\/\//)), 'doc_name')
+      .forEach(({ doc_name, sample_text }) => {
       const linkDiv = document.createElement("div");
-      linkDiv.classList.add(...botMsgClasses, "chatbees-link");
-      linkDiv.textContent = sample_text;
+      linkDiv.classList.add("chatbees-link");
       const link = document.createElement("a");
       link.href = doc_name;
       link.target = "_blank";
-      link.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 48 48" width="24px" height="24px"><path fill="#BBDEFB" d="M6 10H38V42H6z"/><path fill="#3F51B5" d="M42 6L42 21 27 6z"/><path fill="#3F51B5" d="M26.132 10.368H34.133V25.368000000000002H26.132z" transform="rotate(45.001 30.132 17.868)"/></svg>`;
+      link.innerHTML = `<span title="${sample_text}">${doc_name}</span><img src="images/pop-out-outline.svg" alt="Link" class="chatbees-btn-icon inline">`;
       linkDiv.appendChild(link);
-      chatAreaElement.appendChild(linkDiv);
+      botMsgSources.appendChild(linkDiv);
     });
+
+    if (botMsg.refs?.length) {
+      botMsgDiv.appendChild(document.createElement("br"));
+      const sourcesLabel = document.createElement("label");
+      sourcesLabel.textContent = "Sources: "
+      sourcesLabel.classList.add("chatbees-section-label")
+      botMsgDiv.appendChild(sourcesLabel);
+      botMsgDiv.appendChild(botMsgSources);
+    }
+    chatAreaElement.scrollTop = chatAreaElement.scrollHeight;
 
     return botMsgDiv;
   };
