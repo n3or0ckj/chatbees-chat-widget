@@ -30,18 +30,18 @@
 
     <!-- Chat Popup -->
     <div class="chatbees-popup" id="chatbeesPopup">
-      <div class="chatbees-header">
+      <div class="chatbees-header bg-black p-2.5">
         <div class="chatbees-left-section">
-          <img src="chatbees_logo_favicon.svg" alt="Chat Logo" class="chatbees-logo">
-          <a href="https://www.chatbees.ai/pricing" target="_blank" style="color: blue;"><strong>ChatBees</strong></a>
+          <img src="chatbees_logo_favicon_white.svg" alt="Chat Logo" class="chatbees-logo mr-2">
+          <a href="https://www.chatbees.ai/pricing" target="_blank" style="color: white;"><strong>ChatBees</strong></a>
         </div>
         <div class="chatbees-right-section">
-          <button id="chatbeesClearBtn" aria-label="Clear ChatBees Chat Message">
-            <img src="chatbees_refresh_icon.svg" alt="Clear" class="chatbees-btn-icon">
+          <button id="chatbeesClearBtn" aria-label="Clear ChatBees Chat Message" class="w-8 h-8">
+            <svg viewBox="0 0 36 36" class="w-5"  xmlns="http://www.w3.org/2000/svg" fill="#ffffff" stroke="#ffffff" aria-hidden="true"><path d="M22.4,11.65a1.09,1.09,0,0,0,1.09,1.09H34.43V1.81a1.09,1.09,0,1,0-2.19,0V8.95a16.41,16.41,0,1,0,1.47,15.86,1.12,1.12,0,0,0-2.05-.9,14.18,14.18,0,1,1-1.05-13.36H23.5A1.09,1.09,0,0,0,22.4,11.65Z"></path></svg>
           </button>
           
-          <button id="chatbeesCloseBtn" aria-label="Close ChatBees Popup">
-            <img src="chatbees_close_icon.svg" alt="Close" class="chatbees-btn-icon">
+          <button id="chatbeesCloseBtn" aria-label="Close ChatBees Popup" class="w-8 h-8">
+            <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="#ffffff" stroke="#ffffff" ><path d="M19.41,18l8.29-8.29a1,1,0,0,0-1.41-1.41L18,16.59,9.71,8.29A1,1,0,0,0,8.29,9.71L16.59,18,8.29,26.29a1,1,0,1,0,1.41,1.41L18,19.41l8.29,8.29a1,1,0,0,0,1.41-1.41Z"></path></svg>
           </button>
         </div>
       </div>
@@ -61,8 +61,7 @@
         <input type="hidden" id="chatbeesCollectionName" value="collectionName">
         <button
             id="chatbeesSendMessageBtn"
-            class="flex h-16 w-16 items-center justify-center rounded-md bg-primary text-white hover:text-gray-900"
-            style="background-color: #4a86e8ff;"
+            class="flex h-16 w-16 items-center justify-center rounded-md bg-primary text-white hover:text-gray-900 bg-black"
             aria-label="Ask ChatBees Question">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"fill="none">
             <path d="M22 2L11 13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
