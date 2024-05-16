@@ -36,7 +36,7 @@
   ].map(getElementById);
   if (!chatPopupElement || !chatAreaElement || !userMsgElement) {
     window.alert(
-      "Please put chatbeesPopup, chatbeesChatArea and chatbeesUserInput elements in your HTML."
+      "Please put chatbeesPopup, chatbeesChatArea and chatbeesUserInput elements in your HTML.",
     );
     return;
   }
@@ -94,23 +94,27 @@
 
     const botMsgSources = document.createElement("div");
 
-    _.uniqBy(botMsg.refs?.filter(ref => ref.doc_name?.match(/https?:\/\//)), 'doc_name')
+    _.uniqBy(
+      botMsg.refs?.filter((ref) => ref.doc_name?.match(/https?:\/\//)),
+      "doc_name",
+    )
+      .slice(0, 3)
       .forEach(({ doc_name, sample_text }) => {
-      const linkDiv = document.createElement("div");
-      linkDiv.classList.add("chatbees-link");
-      const link = document.createElement("a");
-      link.href = doc_name;
-      link.target = "_blank";
-      link.innerHTML = `<span title="${sample_text}">${doc_name}</span><img src="images/pop-out-outline.svg" alt="Link" class="chatbees-btn-icon inline">`;
-      linkDiv.appendChild(link);
-      botMsgSources.appendChild(linkDiv);
-    });
+        const linkDiv = document.createElement("div");
+        linkDiv.classList.add("chatbees-link");
+        const link = document.createElement("a");
+        link.href = doc_name;
+        link.target = "_blank";
+        link.innerHTML = `<span title="${sample_text}">${doc_name}</span><img src="images/pop-out-outline.svg" alt="Link" class="chatbees-btn-icon inline">`;
+        linkDiv.appendChild(link);
+        botMsgSources.appendChild(linkDiv);
+      });
 
     if (botMsg.refs?.length) {
       botMsgDiv.appendChild(document.createElement("br"));
       const sourcesLabel = document.createElement("label");
-      sourcesLabel.textContent = "Sources: "
-      sourcesLabel.classList.add("chatbees-section-label")
+      sourcesLabel.textContent = "Sources: ";
+      sourcesLabel.classList.add("chatbees-section-label");
       botMsgDiv.appendChild(sourcesLabel);
       botMsgDiv.appendChild(botMsgSources);
     }
@@ -140,7 +144,7 @@
 
     localStorage.setItem(
       localStorageHistoryKey,
-      JSON.stringify(historyMessages)
+      JSON.stringify(historyMessages),
     );
   };
 
@@ -179,7 +183,7 @@
         question: userMsg,
         history_messages: historyMessages.reduce(
           (acc, { userMsg, botMsg }) => [...acc, [userMsg, botMsg.answer]],
-          []
+          [],
         ),
       });
     }
@@ -198,7 +202,7 @@
           return response.json();
         }
         throw new Error(
-          `status: ${response.status}, error: ${response.statusText}`
+          `status: ${response.status}, error: ${response.statusText}`,
         );
       })
       .then((botMsg) => {
@@ -213,7 +217,7 @@
 
         appendBotMessage(
           { answer: botMessages.generateErrorMessage(error) },
-          "chatbees-error"
+          "chatbees-error",
         );
       });
   };
