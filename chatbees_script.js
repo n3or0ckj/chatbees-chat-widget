@@ -109,9 +109,10 @@
         const linkDiv = document.createElement("div");
         linkDiv.classList.add("chatbees-link");
         const link = document.createElement("a");
+        link.classList.add("flex");
         link.href = doc_name;
         link.target = "_blank";
-        link.innerHTML = `<span title="${sample_text}">${doc_name}</span><img src="images/pop-out-outline.svg" alt="Link" class="chatbees-btn-icon inline">`;
+        link.innerHTML = `<span class="truncate" title="${sample_text}">${doc_name}</span><img src="images/pop-out-outline.svg" alt="Link" class="chatbees-btn-icon inline">`;
         linkDiv.appendChild(link);
         botMsgSources.appendChild(linkDiv);
       });
