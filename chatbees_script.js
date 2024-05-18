@@ -34,6 +34,15 @@
     "chatbeesCloseBtn",
     "chatbeesSendMessageBtn",
   ].map(getElementById);
+
+  const [emailArea, emailInpub, submitEmailBtn] = [
+    "chatbeesEmailInputArea",
+    "chatbeesEmailInput",
+    "chatbeesSubmitEmailBtn",
+  ].map(getElementById);
+
+  let emailAreaDisplay = emailArea.style.display;
+
   if (!chatPopupElement || !chatAreaElement || !userMsgElement) {
     window.alert(
       "Please put chatbeesPopup, chatbeesChatArea and chatbeesUserInput elements in your HTML.",
@@ -81,7 +90,11 @@
       return `Something went wrong: ${message}`;
     },
   };
-  const appendBotMessage = (botMsg, ...additionalClasses) => {
+  const appendBotMessage = (
+    botMsg,
+    addReactionButtons = false,
+    ...additionalClasses
+  ) => {
     const botMsgClasses = ["chatbees-message", "chatbees-bot"];
 
     const botMsgDiv = document.createElement("div");
@@ -118,6 +131,64 @@
       botMsgDiv.appendChild(sourcesLabel);
       botMsgDiv.appendChild(botMsgSources);
     }
+
+    if (addReactionButtons) {
+      const botReactionButtons = document.createElement("div");
+      const reactionButtons = document.createElement("div");
+      reactionButtons.classList.add("pt-2");
+      const buttonClasses = [
+        "inline-flex",
+        "items-center",
+        "justify-center",
+        "bg-white",
+        "text-gray-500",
+        "shadow",
+        "ring-1",
+        "ring-inset",
+        "ring-gray-300",
+        "transition-all",
+        "duration-150",
+        "rounded-lg",
+        "p-2",
+        "hover:bg-blue-50",
+        "hover:text-blue-700",
+        "hover:border-blue-500",
+      ];
+
+      const buttonDefinitions = [
+        {
+          icon: "images/thumbs-up-outline.svg",
+          ariaLabel: "Thumbs up",
+          action: () => console.log("Thumbs up"),
+        },
+        {
+          icon: "images/thumbs-down-outline.svg",
+          ariaLabel: "Thumbs down",
+          action: () => console.log("Thumbs down"),
+        },
+        {
+          icon: "images/envelope-outline.svg",
+          ariaLabel: "Leave your email",
+          action: () => {
+            emailAreaDisplay = emailArea.style.display = emailAreaDisplay === "flex" ? "none" : "flex";
+            if (emailAreaDisplay === 'flex') {
+              emailInpub.focus();
+            }
+          },
+        },
+      ];
+      buttonDefinitions.forEach(({ icon, ariaLabel, action }) => {
+        const button = document.createElement("button");
+        button.classList.add(...buttonClasses);
+        button.type = "button";
+        button.innerHTML = `<img src="${icon}" aria-label="${ariaLabel}" class="chatbees-btn-icon inline">`;
+        button.addEventListener("click", action);
+        reactionButtons.appendChild(button);
+      });
+      botReactionButtons.appendChild(reactionButtons);
+      botMsgDiv.appendChild(botReactionButtons);
+    }
+
     chatAreaElement.scrollTop = chatAreaElement.scrollHeight;
 
     return botMsgDiv;
@@ -126,10 +197,11 @@
   const restoreHistoryMessagesAndGreet = () => {
     historyMessages.forEach(({ userMsg, botMsg }) => {
       appendUserMessage(userMsg);
-      appendBotMessage(botMsg);
+      appendBotMessage(botMsg, true);
     });
 
     appendBotMessage({ answer: botMessages.greeting });
+    emailAreaDisplay = emailArea.style.display = "none";
   };
 
   restoreHistoryMessagesAndGreet();
@@ -207,7 +279,7 @@
       })
       .then((botMsg) => {
         chatAreaElement.removeChild(thinkMsg);
-        appendBotMessage(botMsg);
+        appendBotMessage(botMsg, true);
 
         addItemToHistory({ userMsg, botMsg });
       })
@@ -217,6 +289,7 @@
 
         appendBotMessage(
           { answer: botMessages.generateErrorMessage(error) },
+          false,
           "chatbees-error",
         );
       });

@@ -39,13 +39,23 @@
           <button id="chatbeesClearBtn" aria-label="Clear ChatBees Chat Message" class="w-8 h-8">
             <svg viewBox="0 0 36 36" class="w-5"  xmlns="http://www.w3.org/2000/svg" fill="#ffffff" stroke="#ffffff" aria-hidden="true"><path d="M22.4,11.65a1.09,1.09,0,0,0,1.09,1.09H34.43V1.81a1.09,1.09,0,1,0-2.19,0V8.95a16.41,16.41,0,1,0,1.47,15.86,1.12,1.12,0,0,0-2.05-.9,14.18,14.18,0,1,1-1.05-13.36H23.5A1.09,1.09,0,0,0,22.4,11.65Z"></path></svg>
           </button>
-          
+
           <button id="chatbeesCloseBtn" aria-label="Close ChatBees Popup" class="w-8 h-8">
             <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="#ffffff" stroke="#ffffff" ><path d="M19.41,18l8.29-8.29a1,1,0,0,0-1.41-1.41L18,16.59,9.71,8.29A1,1,0,0,0,8.29,9.71L16.59,18,8.29,26.29a1,1,0,1,0,1.41,1.41L18,19.41l8.29,8.29a1,1,0,0,0,1.41-1.41Z"></path></svg>
           </button>
         </div>
       </div>
       <div class="chatbees-chat-area" id="chatbeesChatArea">
+      </div>
+      <div class="hidden border p-3" id="chatbeesEmailInputArea">
+        <input type="email"
+          class="flex-grow border border-gray-200 p-2 mr-2 focus:border-blue-500"
+          id="chatbeesEmailInput" placeholder="Please enter your email address" />
+        <button type="button"
+          class="border p-2 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-500"
+          id="chatbeesSubmitEmailBtn">
+          Submit
+        </button>
       </div>
       <div class="chatbees-user-input-area">
         <textarea id="chatbeesUserInput" placeholder="Type your message here"></textarea>
@@ -75,4 +85,3 @@
     <script src="chatbees_script.js"></script>
 </body>
 </html>
-
