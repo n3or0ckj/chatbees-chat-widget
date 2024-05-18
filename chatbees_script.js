@@ -41,8 +41,6 @@
     "chatbeesSubmitEmailBtn",
   ].map(getElementById);
 
-  let emailAreaDisplay = emailArea.style.display;
-
   if (!chatPopupElement || !chatAreaElement || !userMsgElement) {
     window.alert(
       "Please put chatbeesPopup, chatbeesChatArea and chatbeesUserInput elements in your HTML.",
@@ -90,25 +88,20 @@
       return `Something went wrong: ${message}`;
     },
   };
-  const appendBotMessage = (
-    botMsg,
-    addReactionButtons = false,
-    ...additionalClasses
-  ) => {
+  const createBotMsgDiv = ({ answer }, additionalClasses) => {
     const botMsgClasses = ["chatbees-message", "chatbees-bot"];
-
     const botMsgDiv = document.createElement("div");
     botMsgDiv.classList.add(...botMsgClasses, ...additionalClasses);
-
     const botMsgPlain = document.createElement("div");
-    botMsgPlain.textContent = botMsg.answer;
+    botMsgPlain.textContent = answer;
     botMsgDiv.appendChild(botMsgPlain);
-    chatAreaElement.appendChild(botMsgDiv);
+    return botMsgDiv;
+  };
 
+  const createBotMsgSources = ({ refs }) => {
     const botMsgSources = document.createElement("div");
-
     _.uniqBy(
-      botMsg.refs?.filter((ref) => ref.doc_name?.match(/https?:\/\//)),
+      refs?.filter((ref) => ref.doc_name?.match(/https?:\/\//)),
       "doc_name",
     )
       .slice(0, 3)
@@ -122,70 +115,70 @@
         linkDiv.appendChild(link);
         botMsgSources.appendChild(linkDiv);
       });
+    return botMsgSources;
+  };
+
+  const createReactionButtons = (botMsg) => {
+    const botReactionButtons = document.createElement("div");
+    const buttonClasses = ("inline-flex items-center justify-center bg-white text-gray-500 " +
+      "shadow ring-1 ring-inset ring-gray-300 transition-all duration-150 rounded-lg p-2 " +
+      "hover:bg-blue-50 hover:text-blue-700 hover:border-blue-500").split(" ");
+
+    const buttonDefinitions = [
+      {
+        icon: "images/thumbs-up-outline.svg",
+        ariaLabel: "Thumbs up",
+        action: () => console.log("Thumbs up"),
+      },
+      {
+        icon: "images/thumbs-down-outline.svg",
+        ariaLabel: "Thumbs down",
+        action: () => console.log("Thumbs down"),
+      },
+      {
+        icon: "images/envelope-outline.svg",
+        ariaLabel: "Leave your email",
+        action: () => {
+          if (emailArea.classList.contains("hidden")) {
+            emailArea.classList.remove("hidden");
+            emailInpub.focus();
+          } else {
+            emailArea.classList.add("hidden");
+            userMsgElement.focus();
+          }
+        },
+      },
+    ];
+    buttonDefinitions.forEach(({ icon, ariaLabel, action }) => {
+      const button = document.createElement("button");
+      button.classList.add(...buttonClasses);
+      button.type = "button";
+      button.innerHTML = `<img src="${icon}" alt="${ariaLabel}" aria-label="${ariaLabel}" class="chatbees-btn-icon inline">`;
+      button.addEventListener("click", action);
+      botReactionButtons.appendChild(button);
+    });
+    return botReactionButtons;
+  };
+
+  const appendBotMessage = (
+    botMsg,
+    addReactionButtons = false,
+    ...additionalClasses
+  ) => {
+    const botMsgDiv = createBotMsgDiv(botMsg, additionalClasses);
+    chatAreaElement.appendChild(botMsgDiv);
 
     if (botMsg.refs?.length) {
-      botMsgDiv.appendChild(document.createElement("br"));
-      const sourcesLabel = document.createElement("label");
-      sourcesLabel.textContent = "Sources: ";
-      sourcesLabel.classList.add("chatbees-section-label");
-      botMsgDiv.appendChild(sourcesLabel);
-      botMsgDiv.appendChild(botMsgSources);
+      const botSourceDiv = document.createElement("div");
+      botSourceDiv.classList.add("py-4");
+      botSourceDiv.innerHTML = `<div><label class="chatbees-section-label">Sources: </label></div>`;
+      botSourceDiv.appendChild(createBotMsgSources(botMsg));
+
+      botMsgDiv.appendChild(botSourceDiv);
     }
 
     if (addReactionButtons) {
-      const botReactionButtons = document.createElement("div");
-      const reactionButtons = document.createElement("div");
-      reactionButtons.classList.add("pt-2");
-      const buttonClasses = [
-        "inline-flex",
-        "items-center",
-        "justify-center",
-        "bg-white",
-        "text-gray-500",
-        "shadow",
-        "ring-1",
-        "ring-inset",
-        "ring-gray-300",
-        "transition-all",
-        "duration-150",
-        "rounded-lg",
-        "p-2",
-        "hover:bg-blue-50",
-        "hover:text-blue-700",
-        "hover:border-blue-500",
-      ];
-
-      const buttonDefinitions = [
-        {
-          icon: "images/thumbs-up-outline.svg",
-          ariaLabel: "Thumbs up",
-          action: () => console.log("Thumbs up"),
-        },
-        {
-          icon: "images/thumbs-down-outline.svg",
-          ariaLabel: "Thumbs down",
-          action: () => console.log("Thumbs down"),
-        },
-        {
-          icon: "images/envelope-outline.svg",
-          ariaLabel: "Leave your email",
-          action: () => {
-            emailAreaDisplay = emailArea.style.display = emailAreaDisplay === "flex" ? "none" : "flex";
-            if (emailAreaDisplay === 'flex') {
-              emailInpub.focus();
-            }
-          },
-        },
-      ];
-      buttonDefinitions.forEach(({ icon, ariaLabel, action }) => {
-        const button = document.createElement("button");
-        button.classList.add(...buttonClasses);
-        button.type = "button";
-        button.innerHTML = `<img src="${icon}" aria-label="${ariaLabel}" class="chatbees-btn-icon inline">`;
-        button.addEventListener("click", action);
-        reactionButtons.appendChild(button);
-      });
-      botReactionButtons.appendChild(reactionButtons);
+      const botReactionButtons = createReactionButtons(botMsg);
       botMsgDiv.appendChild(botReactionButtons);
     }
 
@@ -201,7 +194,7 @@
     });
 
     appendBotMessage({ answer: botMessages.greeting });
-    emailAreaDisplay = emailArea.style.display = "none";
+    emailArea.classList.add("hidden");
   };
 
   restoreHistoryMessagesAndGreet();
