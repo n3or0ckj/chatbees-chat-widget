@@ -47,16 +47,28 @@
       </div>
       <div class="chatbees-chat-area" id="chatbeesChatArea">
       </div>
-      <div class="hidden" id="chatbeesEmailInputArea">
-        <div class="flex border p-3">
-          <input type="email"
-            class="flex-grow border border-gray-200 p-2 mr-2 focus:border-blue-500"
-            id="chatbeesEmailInput" placeholder="Please enter your email address" />
-          <button type="button"
-            class="border p-2 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-500"
-            id="chatbeesSubmitEmailBtn">
-            Submit
-          </button>
+      <div class="hidden" id="chatbeesFeedbackArea">
+        <div class="border p-3">
+          <div class="text-gray-700 mb-4 text-sm">
+            We value your feedback! Please leave your email and a message below.
+          </div>
+          <div class="flex pb-2">
+            <input type="email"
+              class="flex-grow border border-gray-200 p-2 focus:border-blue-500"
+              id="chatbeesEmailInput" placeholder="Please enter your email address" />
+          </div>
+          <div class="flex">
+            <textarea
+              class="flex-grow border border-gray-200 p-2 mr-2 resize-none focus:border-blue-500"
+              id="chatbeesFeedbackTextArea"
+              maxlength="140"
+              placeholder="Your message (optional, up to 140 characters)"></textarea>
+            <button type="button"
+              class="border p-2 w-20 flex items-center justify-center hover:bg-blue-50 hover:text-blue-700 hover:border-blue-500"
+              id="chatbeesSubmitFeedbackButton">
+              Submit
+            </button>
+          </div>
         </div>
       </div>
       <div class="chatbees-user-input-area">

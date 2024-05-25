@@ -35,11 +35,17 @@
     "chatbeesSendMessageBtn",
   ].map(getElementById);
 
-  const [emailArea, emailInpub, submitEmailBtn] = [
-    "chatbeesEmailInputArea",
+  const [feedbackArea, emailInput, feedbackTextarea, submitFeedbackBtn] = [
+    "chatbeesFeedbackArea",
     "chatbeesEmailInput",
-    "chatbeesSubmitEmailBtn",
+    "chatbeesFeedbackTextArea",
+    "chatbeesSubmitFeedbackButton",
   ].map(getElementById);
+
+  const spinner = `<svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+</svg>`;
 
   if (!chatPopupElement || !chatAreaElement || !userMsgElement) {
     window.alert(
@@ -49,8 +55,9 @@
   }
 
   const localStorageHistoryKey = "chatBeesHistoryMessages";
+  const localStorageConversationIdKey = "chatBeesConversationId";
   let historyMessages;
-  const resetMessageHistroy = () => {
+  const resetMessageHistory = () => {
     historyMessages = [];
     localStorage.setItem(localStorageHistoryKey, JSON.stringify([]));
   };
@@ -59,11 +66,14 @@
     historyMessages = JSON.parse(localStorage.getItem(localStorageHistoryKey));
 
     if (!Array.isArray(historyMessages)) {
-      resetMessageHistroy();
+      resetMessageHistory();
     }
   } catch {
-    resetMessageHistroy();
+    resetMessageHistory();
   }
+
+  let conversationId = localStorage.getItem(localStorageConversationIdKey);
+  let requestId;
 
   const appendUserMessage = (userMsg) => {
     if (!userMsg) {
@@ -118,7 +128,33 @@
     return botMsgSources;
   };
 
-  const createReactionButtons = (botMsg) => {
+  const createFeedbackSender = ({ request_id, thumb_down, text_feedback, email }) =>
+    () => {
+      const feedbackUrl = `https://${aid}.us-west-2.aws.chatbees.ai/feedback/create_or_update`;
+      const feedbackData = {
+        namespace_name: namespaceName,
+        collection_name: collectionName,
+        request_id,
+        thumb_down,
+        text_feedback,
+        unregistered_user: {
+          source: "WEBSITE",
+          email: email,
+        },
+      };
+
+      return fetch(feedbackUrl, {
+        method: "POST",
+        headers: {
+          // If the collection does not allow public read, please add your api-key here.
+          // "api-key": "Replace with your API Key",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(feedbackData),
+      });
+    };
+
+  const createReactionButtons = ({ request_id }) => {
     const botReactionButtons = document.createElement("div");
     const buttonClasses = ("inline-flex items-center justify-center bg-white text-gray-500 " +
       "shadow ring-1 ring-inset ring-gray-300 transition-all duration-150 rounded-lg p-2 " +
@@ -128,22 +164,30 @@
       {
         icon: "images/thumbs-up-outline.svg",
         ariaLabel: "Thumbs up",
-        action: () => console.log("Thumbs up"),
+        action: createFeedbackSender({
+          request_id,
+          thumb_down: false,
+        }),
       },
       {
         icon: "images/thumbs-down-outline.svg",
         ariaLabel: "Thumbs down",
-        action: () => console.log("Thumbs down"),
+        action: createFeedbackSender({
+          request_id,
+          thumb_down: true,
+        }),
       },
       {
         icon: "images/envelope-outline.svg",
-        ariaLabel: "Leave your email",
+        ariaLabel: "Leave your email and feedback",
         action: () => {
-          if (emailArea.classList.contains("hidden")) {
-            emailArea.classList.remove("hidden");
-            emailInpub.focus();
+          if (feedbackArea.classList.contains("hidden")) {
+            requestId = request_id;
+
+            feedbackArea.classList.remove("hidden");
+            emailInput.focus();
           } else {
-            emailArea.classList.add("hidden");
+            feedbackArea.classList.add("hidden");
             userMsgElement.focus();
           }
         },
@@ -192,7 +236,7 @@
     });
 
     appendBotMessage({ answer: botMessages.greeting });
-    emailArea.classList.add("hidden");
+    feedbackArea.classList.add("hidden");
   };
 
   restoreHistoryMessagesAndGreet();
@@ -223,12 +267,9 @@
     userMsgElement.value = "";
     userMsgElement.focus();
 
-    const thinkMsg = document.createElement('div');
+    const thinkMsg = document.createElement("div");
     thinkMsg.classList.add("chatbees-message", "chatbees-bot");
-    thinkMsg.innerHTML = `<span class="inline-flex items-center"><svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-    </svg> Bees are thinking...</span>`;
+    thinkMsg.innerHTML = `<span class="inline-flex items-center">${spinner}<span class="ml-2">Bees are thinking...</span></span>`;
     chatAreaElement.appendChild(thinkMsg);
     chatAreaElement.scrollTop = chatAreaElement.scrollHeight;
 
@@ -240,23 +281,21 @@
     }
 
     const apiUrl = "https://" + aid + ".us-west-2.aws.chatbees.ai/docs/ask";
-    let jsonData = JSON.stringify({
+    const data = {
       namespace_name: namespaceName,
       collection_name: collectionName,
       question: userMsg,
-    });
-
-    if (historyMessages.length > 0) {
-      jsonData = JSON.stringify({
-        namespace_name: namespaceName,
-        collection_name: collectionName,
-        question: userMsg,
-        history_messages: historyMessages.reduce(
-          (acc, { userMsg, botMsg }) => [...acc, [userMsg, botMsg.answer]],
-          [],
-        ),
-      });
+    };
+    if (conversationId) {
+      data.conversation_id = conversationId;
     }
+    if (historyMessages.length > 0) {
+      data.history_messages = historyMessages.reduce(
+        (acc, { userMsg, botMsg }) => [...acc, [userMsg, botMsg.answer]],
+        [],
+      );
+    }
+    const jsonData = JSON.stringify(data);
 
     fetch(apiUrl, {
       method: "POST",
@@ -277,6 +316,15 @@
       })
       .then((botMsg) => {
         chatAreaElement.removeChild(thinkMsg);
+
+        if (
+          botMsg.conversation_id &&
+          conversationId !== botMsg.conversation_id
+        ) {
+          conversationId = botMsg.conversation_id;
+          localStorage.setItem(localStorageConversationIdKey, conversationId);
+        }
+
         appendBotMessage(botMsg, true);
 
         addItemToHistory({ userMsg, botMsg });
@@ -304,12 +352,37 @@
     userMsgElement.value = "";
     userMsgElement.focus();
 
-    resetMessageHistroy();
+    resetMessageHistory();
     restoreHistoryMessagesAndGreet();
   });
 
   closeBtnElement?.addEventListener("click", () => {
     chatPopupElement.style.display = "none";
+  });
+
+  submitFeedbackBtn.addEventListener("click", async () => {
+    const email = emailInput.value.trim();
+    const text = feedbackTextarea.value.trim();
+    if (email) {
+      emailInput.disabled = true;
+      feedbackTextarea.disabled = true;
+      submitFeedbackBtn.disabled = true;
+      submitFeedbackBtn.innerHTML = spinner;
+
+      await createFeedbackSender({
+        request_id: requestId,
+        thumb_down: false,
+        text_feedback: text,
+        email,
+      })();
+
+      feedbackArea.classList.add("hidden");
+
+      emailInput.disabled = false;
+      feedbackTextarea.disabled = false;
+      submitFeedbackBtn.disabled = false;
+      submitFeedbackBtn.innerHTML = "Submit";
+    }
   });
 
   sendMessageBtnElement?.addEventListener("click", () => {
