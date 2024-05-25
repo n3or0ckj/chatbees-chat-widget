@@ -47,10 +47,20 @@
       </div>
       <div class="chatbees-chat-area" id="chatbeesChatArea">
       </div>
-      <div class="hidden" id="chatbeesFeedbackArea">
+      <div class="hidden relative" id="chatbeesFeedbackArea">
         <div class="border p-3">
-          <div class="text-gray-700 mb-4 text-sm">
-            We value your feedback! Please leave your email and a message below.
+          <div class="flex text-gray-700 mb-4 text-sm">
+            <div>
+              We value your feedback! Please leave your email and a message below.
+            </div>
+            <button type="button"
+              id="chatbeesFeedbackCloseBtn"
+              class="w-8 h-8 hover:text-blue-700"
+              aria-label="Close Feedback Form">
+              <svg width="24" height="24" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" fill="currentColor" stroke="currentColor">
+                <path d="M19.41,18l8.29-8.29a1,1,0,0,0-1.41-1.41L18,16.59,9.71,8.29A1,1,0,0,0,8.29,9.71L16.59,18,8.29,26.29a1,1,0,1,0,1.41,1.41L18,19.41l8.29,8.29a1,1,0,0,0,1.41-1.41Z"></path>
+              </svg>
+            </button>
           </div>
           <div class="flex pb-2">
             <input type="email"
@@ -69,6 +79,9 @@
               Submit
             </button>
           </div>
+        <div id="chatbeesFeedbackMask" class="hidden absolute inset-0 opacity-80 flex items-center justify-center">
+          <img src="images/bee-hive.gif" aria-label="Feedback sent" />
+        </div>
         </div>
       </div>
       <div class="chatbees-user-input-area">
@@ -95,7 +108,7 @@
       </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
     <script src="chatbees_script.js"></script>
 </body>
 </html>

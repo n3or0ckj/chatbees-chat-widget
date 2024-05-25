@@ -35,11 +35,20 @@
     "chatbeesSendMessageBtn",
   ].map(getElementById);
 
-  const [feedbackArea, emailInput, feedbackTextarea, submitFeedbackBtn] = [
+  const [
+    feedbackArea,
+    feedbackCloseBtn,
+    emailInput,
+    feedbackTextarea,
+    submitFeedbackBtn,
+    feedbackMask,
+  ] = [
     "chatbeesFeedbackArea",
+    "chatbeesFeedbackCloseBtn",
     "chatbeesEmailInput",
     "chatbeesFeedbackTextArea",
     "chatbeesSubmitFeedbackButton",
+    "chatbeesFeedbackMask",
   ].map(getElementById);
 
   const spinner = `<svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -74,6 +83,16 @@
 
   let conversationId = localStorage.getItem(localStorageConversationIdKey);
   let requestId;
+
+  const showFeedback = () => {
+    feedbackArea.classList.remove("hidden");
+    emailInput.focus();
+  };
+
+  const hideFeedback = () => {
+    feedbackArea.classList.add("hidden");
+    userMsgElement.focus();
+  };
 
   const appendUserMessage = (userMsg) => {
     if (!userMsg) {
@@ -183,12 +202,9 @@
         action: () => {
           if (feedbackArea.classList.contains("hidden")) {
             requestId = request_id;
-
-            feedbackArea.classList.remove("hidden");
-            emailInput.focus();
+            showFeedback();
           } else {
-            feedbackArea.classList.add("hidden");
-            userMsgElement.focus();
+            hideFeedback();
           }
         },
       },
@@ -236,7 +252,7 @@
     });
 
     appendBotMessage({ answer: botMessages.greeting });
-    feedbackArea.classList.add("hidden");
+    hideFeedback();
   };
 
   restoreHistoryMessagesAndGreet();
@@ -360,14 +376,26 @@
     chatPopupElement.style.display = "none";
   });
 
+  feedbackCloseBtn.addEventListener("click", hideFeedback);
+
   submitFeedbackBtn.addEventListener("click", async () => {
     const email = emailInput.value.trim();
     const text = feedbackTextarea.value.trim();
+
+    const updateFormState = (sending) => {
+      emailInput.disabled = sending;
+      feedbackTextarea.disabled = sending;
+      submitFeedbackBtn.disabled = sending;
+      submitFeedbackBtn.innerHTML = sending ? spinner : "Submit";
+      if (sending) {
+        feedbackMask.classList.remove("hidden");
+      } else {
+        feedbackMask.classList.add("hidden");
+      }
+    };
+
     if (email) {
-      emailInput.disabled = true;
-      feedbackTextarea.disabled = true;
-      submitFeedbackBtn.disabled = true;
-      submitFeedbackBtn.innerHTML = spinner;
+      updateFormState(true);
 
       await createFeedbackSender({
         request_id: requestId,
@@ -376,12 +404,8 @@
         email,
       })();
 
-      feedbackArea.classList.add("hidden");
-
-      emailInput.disabled = false;
-      feedbackTextarea.disabled = false;
-      submitFeedbackBtn.disabled = false;
-      submitFeedbackBtn.innerHTML = "Submit";
+      updateFormState(false);
+      hideFeedback();
     }
   });
 
