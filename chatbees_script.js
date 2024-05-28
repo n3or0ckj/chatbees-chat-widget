@@ -67,6 +67,9 @@
   const localStorageConversationIdKey = "chatBeesConversationId";
   let historyMessages;
   const resetMessageHistory = () => {
+    conversationId = undefined;
+    localStorage.removeItem(localStorageConversationIdKey);
+
     historyMessages = [];
     localStorage.setItem(localStorageHistoryKey, JSON.stringify([]));
   };
