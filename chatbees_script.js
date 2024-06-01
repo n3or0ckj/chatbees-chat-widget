@@ -63,8 +63,10 @@
     return;
   }
 
-  const localStorageHistoryKey = "chatBeesHistoryMessages";
   const localStorageConversationIdKey = "chatBeesConversationId";
+  let conversationId = localStorage.getItem(localStorageConversationIdKey);
+
+  const localStorageHistoryKey = "chatBeesHistoryMessages";
   let historyMessages;
   const resetMessageHistory = () => {
     conversationId = undefined;
@@ -84,7 +86,6 @@
     resetMessageHistory();
   }
 
-  let conversationId = localStorage.getItem(localStorageConversationIdKey);
   let requestId;
 
   const showFeedback = () => {
@@ -124,7 +125,8 @@
     const botMsgDiv = document.createElement("div");
     botMsgDiv.classList.add(...botMsgClasses, ...additionalClasses);
     const botMsgPlain = document.createElement("div");
-    botMsgPlain.textContent = answer;
+    botMsgPlain.classList.add("text-justify");
+    botMsgPlain.innerHTML = answer.replaceAll('\n', '<br/>');
     botMsgDiv.appendChild(botMsgPlain);
     return botMsgDiv;
   };
