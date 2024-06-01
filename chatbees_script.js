@@ -181,7 +181,7 @@
   const createReactionButtons = ({ request_id }) => {
     const botReactionButtons = document.createElement("div");
     const buttonClasses = ("inline-flex items-center justify-center bg-white text-gray-500 " +
-      "shadow ring-1 ring-inset ring-gray-300 transition-all duration-150 rounded-lg p-2 " +
+      "shadow ring-1 ring-inset ring-gray-300 transition-all duration-150 rounded-lg p-1 " +
       "hover:bg-blue-50 hover:text-blue-700 hover:border-blue-500").split(" ");
 
     const buttonDefinitions = [
@@ -297,7 +297,7 @@
     if (collectionName === "collectionName") {
       chatAreaElement.removeChild(thinkMsg);
 
-      appendBotMessage({ answer: botMessages.generateEchoMessage(userMsg) });
+      appendBotMessage({ answer: botMessages.generateEchoMessage(userMsg) }, true);
       return;
     }
 
