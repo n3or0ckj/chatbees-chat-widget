@@ -63,8 +63,10 @@
     return;
   }
 
-  const localStorageHistoryKey = "chatBeesHistoryMessages";
   const localStorageConversationIdKey = "chatBeesConversationId";
+  let conversationId = localStorage.getItem(localStorageConversationIdKey);
+
+  const localStorageHistoryKey = "chatBeesHistoryMessages";
   let historyMessages;
   const resetMessageHistory = () => {
     conversationId = undefined;
@@ -84,7 +86,6 @@
     resetMessageHistory();
   }
 
-  let conversationId = localStorage.getItem(localStorageConversationIdKey);
   let requestId;
 
   const showFeedback = () => {
