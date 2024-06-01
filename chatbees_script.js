@@ -124,7 +124,8 @@
     const botMsgDiv = document.createElement("div");
     botMsgDiv.classList.add(...botMsgClasses, ...additionalClasses);
     const botMsgPlain = document.createElement("div");
-    botMsgPlain.textContent = answer;
+    botMsgPlain.classList.add("text-justify");
+    botMsgPlain.innerHTML = answer.replaceAll('\n', '<br/>');
     botMsgDiv.appendChild(botMsgPlain);
     return botMsgDiv;
   };
